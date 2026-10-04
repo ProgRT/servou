@@ -2,38 +2,68 @@
 #' poppint the last value to keet the same length
 #' @export
 
-shift1 <- function (v) {
-	c(v[1], v[0:(length(v)-1)])
+expi <- function(c) {
+	c[c$DÉ < 0 & c$Phase == "exp.",]
+}
+
+#' @export
+
+inspi <- function(c) {
+	c[c$Du < expi(c)$Du[1],]
+}
+
+cshift <- function (v) {
+	c(v[1], v[1:(length(v)-1)])
+}
+
+fderiv <- function (d) {
+	d$DÉ / cshift(d$DÉ)
 }
 
 #' Select the part of the inspiratory flow waveform folowing the
 #' inspiratory rise time.
 
 pp <- function(dataset, aTreshold=.01) {
-	di = dataset[dataset$Phase == "insp.",]
+	inspi <- inspi(dataset)
 
-	df = di$DÉBIT
-	dm1f = c(df[1], df[0:(length(df)-1)])
+	df = inspi$DÉBIT
 
-	rise <- di[df/dm1f > (1 + aTreshold),]
+	rise <- inspi[df/cshift(df) > (1 + aTreshold),]
 	riseEnd <- rise[nrow(rise),]
-	di[di$Du > riseEnd$Du,]
+	inspi[inspi$Du > riseEnd$Du & fderiv(inspi) > 0.9,]
 }
 
 #' Fit an inverse pababolic function to the inspiratory flow waveform
 #' to calculate the *flow index*.
 #' 
+#' @param cycle Cycle to fit
+#' @param aTreshold Treshold to pass to pp()
+#' @param silent Wether the errors and warnings of snls should be supressed
 #' @export
 
-fitDecel <- function(dataset, aTreshold=0.01) {
-	decel <- pp(dataset, aTreshold=aTreshold)
+fitDecel <- function(cycle, aTreshold=0.01, silent=TRUE) {
+	decel <- pp(cycle, aTreshold=aTreshold)
 	y <- decel$DÉ
 	x <- as.numeric(decel$Du - decel$Du[1])
 
 	start <- list(b1=max(y), b2=max(y)/max(x), b3=2)
-	res <- nls(y ~ b1 - b2 * x^b3, start=start)
+	# res <- nls(y ~ b1 - b2 * x^b3, start=start)
 
-	list(
+	failed <- TRUE
+	try(
+			{
+				res <- nls(y ~ b1 - b2 * x^b3, start=start);
+				failed <- FALSE
+			},
+			silent=silent
+	)
+
+	if(failed) {
+		ret <- list(index=NA)
+	}
+
+	else {
+	ret <- list(
 			 x=x,
 			 y=y,
 			 start=decel$Du[1],
@@ -42,4 +72,6 @@ fitDecel <- function(dataset, aTreshold=0.01) {
 			 fitted=fitted(res),
 			 deviance=deviance(res)
 			 )
+	}
+	ret
 }

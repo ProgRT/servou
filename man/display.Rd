@@ -4,10 +4,14 @@
 \alias{display}
 \title{Display Servo-U data loaded by \emph{parse_servou_data()}}
 \usage{
-display(dataset)
+display(dataset, title = "", notitle = FALSE)
 }
 \arguments{
 \item{dataset}{Data table returned by \emph{load_servou_data()}.}
+
+\item{title}{Title to put on top of the page}
+
+\item{notitle}{Should a title be displayed}
 }
 \description{
 Display Servo-U data loaded by \emph{parse_servou_data()}

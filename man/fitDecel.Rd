@@ -5,7 +5,14 @@
 \title{Fit an inverse pababolic function to the inspiratory flow waveform
 to calculate the \emph{flow index}.}
 \usage{
-fitDecel(dataset)
+fitDecel(cycle, aTreshold = 0.01, silent = TRUE)
+}
+\arguments{
+\item{cycle}{Cycle to fit}
+
+\item{aTreshold}{Treshold to pass to pp()}
+
+\item{silent}{Wether the errors and warnings of snls should be supressed}
 }
 \description{
 Fit an inverse pababolic function to the inspiratory flow waveform

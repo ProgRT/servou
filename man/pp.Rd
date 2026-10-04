@@ -5,7 +5,7 @@
 \title{Select the part of the inspiratory flow waveform folowing the
 inspiratory rise time.}
 \usage{
-pp(dataset)
+pp(dataset, aTreshold = 0.01)
 }
 \description{
 Select the part of the inspiratory flow waveform folowing the
